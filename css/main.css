@@ -1,0 +1,59 @@
+input {
+  width: 80px;
+}
+
+h1#price_graph_header {
+  background-color: #bc8f8f;
+  font-size: 1em;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke: blue;
+  stroke-width: 1.5px;
+  /*shape-rendering: crispEdges;*/
+}
+
+.focus {
+  fill: none;
+  stroke: steelblue;
+}
+
+.rectoverlay {
+  fill: none;
+  pointer-events: all;
+}
+
+#tooltip {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+			
+#tooltip.hidden {
+  display: none;
+}
+			
+#tooltip p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+}
+
