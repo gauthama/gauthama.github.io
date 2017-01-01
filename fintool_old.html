@@ -1,0 +1,114 @@
+<!-- -->
+<script type="text/javascript" src="dygraph-combined-dev.js"> </script>
+
+<script type="text/javascript">
+
+// To test if input CSV file data is converted to Dygraph's expected CSV format
+// Dygraphs expects the first column to be date and all others numeric
+function display_trimmed_csv(){
+    csv_text_trimmed = localStorage.getItem('csv_text');
+    console.log(csv_text_trimmed);
+    
+    g = new Dygraph(document.getElementById("graphdiv"),
+                    csv_text_trimmed);
+}
+
+// Input: MMM, Output: MM
+function convert_month_to_numstr(month) {
+    var months = {
+        'JAN' : '01', 'FEB' : '02', 'MAR' : '03', 'APR' : '04',
+        'MAY' : '05', 'JUN' : '06', 'JUL' : '07', 'AUG' : '08',
+        'SEP' : '09', 'OCT' : '10', 'NOV' : '11', 'DEC' : '12'};
+    return months[month]; 
+    
+}
+
+// Input format: 24-Oct-2016
+// Output format:YYYY-MM-DD
+function process_date(date_str) {
+    var input = date_str.split('-');
+    var output = new Array();
+    output[0] = input[2];
+    output[1] = convert_month_to_numstr(input[1].toUpperCase());
+    output[2] = input[0];
+    return output[0] + '-' + output[1] + '-' + output[2];
+}
+
+// Converts input csv to the csv-format expected by Dygraphs
+// About input CSV:
+//    The 1st two columns are non-number, 3rd is date, from 4th numeric
+//    So trimming 1st two columns; converting date to expected format 
+function trim_csv_text(csv_text) {
+    var csv_text_trimmed='';
+    var rows = csv_text.split("\n");
+    for (var i = 0; i < rows.length; i++) {
+        var cells = rows[i].split(",");
+        for (var j = 2; j < cells.length; j++) {
+            var cell = (cells[j]).replace(/"/g,'');
+            if (j === 2 && i > 0) { // skip 1st row; column 3 is date
+                cell = process_date(cell);
+            }
+            //console.log('Cell:', cell);
+            console.log('log:', csv_text_trimmed);
+            csv_text_trimmed.concat(cell);
+            if (j < cells.length - 1) { // skip comma for last column
+                csv_text_trimmed.concat(',');
+            }
+        }
+        if (i < rows.length - 1) {//skip newline for last row
+            csv_text_trimmed.concat('\n');
+        }
+        //console.log('log:', csv_text_trimmed);
+    }
+    
+    localStorage.setItem('csv_text', csv_text_trimmed);
+    return csv_text_trimmed;
+}
+
+function Upload() {
+    var fileUpload = document.getElementById("fileUpload");
+    var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv|.txt)$/;
+    if (regex.test(fileUpload.value.toLowerCase())) {
+        if (typeof (FileReader) != "undefined") {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var table = document.createElement("table");
+                var rows = e.target.result.split("\n");
+                for (var i = 0; i < rows.length; i++) {
+                    var row = table.insertRow(-1);
+                    var cells = rows[i].split(",");
+                    for (var j = 0; j < cells.length; j++) {
+                       var cell = row.insertCell(-1);
+                       cell.innerHTML = (cells[j]).replace(/"/g,'');
+                    }
+                }
+                var dvCSV = document.getElementById("dvCSV");
+                dvCSV.innerHTML = "";
+                dvCSV.appendChild(table);
+                table.setAttribute("border", "1");
+                //
+                csv_text = (e.target.result).replace(/"/,'');
+                // convert the csv to expected format and save it to browser
+                csv_text_trimmed = trim_csv_text(csv_text);
+                //console.log(csv_text);
+                console.log(csv_text_trimmed);
+            }
+            reader.readAsText(fileUpload.files[0]);
+        } else {
+            alert("This browser does not support HTML5.");
+        }
+    } else {
+        alert("Please upload a valid CSV file.");
+    }
+}
+</script>
+
+<input type="file" id="fileUpload" accept='.csv' onchange='Upload(event)'/>
+<hr />
+<button id='plot' onclick='display_trimmed_csv()' > For Debugging: Display trimmed CSV </button>
+
+<div id="graphdiv"></div>
+
+<hr />
+<div id="dvCSV">
+</div>
